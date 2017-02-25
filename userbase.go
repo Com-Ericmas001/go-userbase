@@ -5,8 +5,6 @@ import (
 	"log"
 	"os"
 
-	"golang.org/x/crypto/bcrypt"
-
 	//Justification: sqlite3 driver
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -19,29 +17,14 @@ type DbContext struct {
 	salt string
 }
 
-//AuthenticationInfo is a model
-type AuthenticationInfo struct {
-	Password string
-	Email    string
-}
-
-//ProfileInfo is a model
-type ProfileInfo struct {
-	DisplayName string
-}
-
-//CreateUserRequest is a request
-type CreateUserRequest struct {
-	Username       string
-	Authentication AuthenticationInfo
-	Profile        ProfileInfo
-}
-
 //FnCreateDatabase is a function used to create the database
 type FnCreateDatabase func(*sql.DB)
 
+//FnInitDatabase is a function used to init the database after creating it
+type FnInitDatabase func(*DbContext)
+
 // Init the db
-func Init(dbPath string, salt string, fnCreate FnCreateDatabase) *DbContext {
+func Init(dbPath string, salt string, fnCreate FnCreateDatabase, fnInit FnInitDatabase) *DbContext {
 	isFirstTime := false
 	if _, err := os.Stat(dbPath); err != nil {
 		isFirstTime = true
@@ -50,11 +33,14 @@ func Init(dbPath string, salt string, fnCreate FnCreateDatabase) *DbContext {
 	db, err := sql.Open("sqlite3", dbPath)
 	checkErr(err)
 
+	if isFirstTime {
+		fnCreate(db)
+	}
+
 	context := DbContext{Db: db, salt: salt}
 
 	if isFirstTime {
-		fnCreate(db)
-		context.CreateUser(CreateUserRequest{Username: "root", Authentication: AuthenticationInfo{Password: "abcd1234", Email: "root@ericmas001.com"}, Profile: ProfileInfo{DisplayName: "ADMIN"}})
+		fnInit(&context)
 	}
 
 	return &context
@@ -73,63 +59,6 @@ func checkErr(err error) {
 
 func (context DbContext) saltPassword(password string) string {
 	return context.salt + password
-}
-
-//IDFromUsername returns IdUser from a username
-func (context DbContext) IDFromUsername(username string) int {
-
-	stmt, err := context.Db.Prepare("SELECT IdUser FROM Users WHERE Name = ?")
-	checkErr(err)
-	defer stmt.Close()
-
-	var id int
-	err = stmt.QueryRow(username).Scan(&id)
-	if err == sql.ErrNoRows {
-		id = 0
-	} else {
-		checkErr(err)
-	}
-
-	return id
-}
-
-//CreateUser creates a user
-func (context DbContext) CreateUser(request CreateUserRequest) {
-
-	//User
-	stmt, err := context.Db.Prepare("INSERT INTO Users(Name, Active) VALUES(?, 1)")
-	checkErr(err)
-
-	res, err := stmt.Exec(request.Username)
-	checkErr(err)
-
-	idUser, err := res.LastInsertId()
-	checkErr(err)
-
-	//Auth
-	// Hashing the password with the default cost of 10
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(context.saltPassword(request.Authentication.Password)), bcrypt.DefaultCost)
-	checkErr(err)
-
-	stmt, err = context.Db.Prepare("INSERT INTO UserAuthentications(IdUser, Password, RecoveryEmail) VALUES(?, ?, ?)")
-	checkErr(err)
-
-	res, err = stmt.Exec(idUser, hashedPassword, request.Authentication.Email)
-	checkErr(err)
-
-	//Profile
-	stmt, err = context.Db.Prepare("INSERT INTO UserProfiles(IdUser, DisplayName) VALUES(?, ?)")
-	checkErr(err)
-
-	res, err = stmt.Exec(idUser, request.Profile.DisplayName)
-	checkErr(err)
-
-	//Settings
-	stmt, err = context.Db.Prepare("INSERT INTO UserSettings(IdUser, IdUserAccessTypeListFriends) VALUES(?, 1)")
-	checkErr(err)
-
-	res, err = stmt.Exec(idUser)
-	checkErr(err)
 }
 
 // CreateDatabase creates the db
