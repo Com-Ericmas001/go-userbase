@@ -5,6 +5,14 @@ import "golang.org/x/crypto/bcrypt"
 //CreateUser creates a user
 func (context DbContext) CreateUser(request CreateUserRequest) ConnectUserResponse {
 
+	if context.UsernameExists(request.Username) || context.EmailExists(request.Authentication.Email) {
+		return invalidConnectUserResponse()
+	}
+
+	if !ValidateUsername(request.Username) || !ValidateEmail(request.Authentication.Email) || !ValidatePassword(request.Authentication.Password) || !ValidateDisplayName(request.Profile.DisplayName) {
+		return invalidConnectUserResponse()
+	}
+
 	idUser := context.createUserEntity(request)
 	context.createUserAthenticationEntity(request, idUser)
 	context.createUserProfileEntity(request, idUser)
