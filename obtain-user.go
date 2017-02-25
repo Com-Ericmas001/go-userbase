@@ -3,13 +3,13 @@ package userbase
 import "database/sql"
 
 //IDFromUsername returns IdUser from a username
-func (context DbContext) IDFromUsername(username string) int {
+func (context DbContext) IDFromUsername(username string) int64 {
 
 	stmt, err := context.Db.Prepare("SELECT IdUser FROM Users WHERE Name = ? AND Active != 0")
 	checkErr(err)
 	defer stmt.Close()
 
-	var id int
+	var id int64
 	err = stmt.QueryRow(username).Scan(&id)
 	if err == sql.ErrNoRows {
 		id = 0
@@ -21,13 +21,13 @@ func (context DbContext) IDFromUsername(username string) int {
 }
 
 //IDFromEmail returns IdUser from a email
-func (context DbContext) IDFromEmail(email string) int {
+func (context DbContext) IDFromEmail(email string) int64 {
 
 	stmt, err := context.Db.Prepare("SELECT IdUser FROM UserAuthentications JOIN Users USING(IdUser) WHERE RecoveryEmail = ? AND Active != 0")
 	checkErr(err)
 	defer stmt.Close()
 
-	var id int
+	var id int64
 	err = stmt.QueryRow(email).Scan(&id)
 	if err == sql.ErrNoRows {
 		id = 0

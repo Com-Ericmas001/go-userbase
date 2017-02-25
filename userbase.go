@@ -51,16 +51,6 @@ func (context DbContext) Close() {
 	context.Db.Close()
 }
 
-func checkErr(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func (context DbContext) saltPassword(password string) string {
-	return context.salt + password
-}
-
 // CreateDatabase creates the db
 func CreateDatabase(currDb *sql.DB) {
 	sqlStmt := `
@@ -70,6 +60,7 @@ func CreateDatabase(currDb *sql.DB) {
 	create table UserAuthentications (IdUser INTEGER UNIQUE REFERENCES Users(IdUser), Password TEXT, RecoveryEmail TEXT);
 	create table UserProfiles (IdUser INTEGER UNIQUE REFERENCES Users(IdUser), DisplayName TEXT);
 	create table UserRecoveryTokens (IdUserRecoveryToken INTEGER PRIMARY KEY, IdUser INTEGER REFERENCES Users(IdUser), Token TEXT, Expiration DATETIME);
+	create table UserTokens (IdUserToken INTEGER PRIMARY KEY, IdUser INTEGER REFERENCES Users(IdUser), Token TEXT, Expiration DATETIME);
 	create table UserRelations (IdUserRelation INTEGER PRIMARY KEY, IdUserOwner INTEGER REFERENCES Users(IdUser), IdUserLinked INTEGER REFERENCES Users(IdUser), IdUserRelationType INTEGER REFERENCES UserRelationTypes(IdUserRelationType));
 	create table UserSettings (IdUser INTEGER UNIQUE REFERENCES Users(IdUser), IdUserAccessTypeListFriends INTEGER REFERENCES UserAccessTypes(IdUserAccessType));
     INSERT INTO UserAccessTypes(IdUserAccessType, Name, Value) VALUES(1, 'Everybody', 10);
@@ -81,4 +72,14 @@ func CreateDatabase(currDb *sql.DB) {
 	`
 	_, err := currDb.Exec(sqlStmt)
 	checkErr(err)
+}
+
+func checkErr(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (context DbContext) saltPassword(password string) string {
+	return context.salt + password
 }
