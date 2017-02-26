@@ -66,3 +66,21 @@ func (context DbContext) ModifyCredentials(request ModifyCredentialsRequest) Tok
 
 	return connection.TokenResponse
 }
+
+//Deactivate deactivates the user
+func (context DbContext) Deactivate(username string, token string) bool {
+
+	connection := context.ValidateToken(username, token)
+	if !connection.TokenResponse.Success {
+		return false
+	}
+
+	stmt, err := context.Db.Prepare("UPDATE Users SET Active = 0 WHERE IdUser = ?")
+	checkErr(err)
+	defer stmt.Close()
+
+	_, err = stmt.Exec(connection.IDUser)
+	checkErr(err)
+
+	return true
+}

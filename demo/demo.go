@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"go-userbase"
 	"log"
+	"os"
 	"time"
 )
 
 func main() {
 	fmt.Println("Hello")
+
+	os.Remove("D:\\test.db")
 
 	context := userbase.Init("D:\\test.db", "DummyUserbaseSalt", CreateDatabase, InitDatabase)
 	defer context.Close()
@@ -41,10 +44,29 @@ func main() {
 	fmt.Println("Connect root ok:", context.ValidateCredentials("root", "abcd1234"))
 	fmt.Println("Disconnect old root:", context.Disconnect("root", ok.TokenResponse.Token.ID))
 	dumpUserTokens(context)
+
+	dumConn := context.ValidateCredentials("dummy", "abcd1234")
+	fmt.Println("Connect dummy:", dumConn)
+	fmt.Println("Deactivate dummy:", context.Deactivate("dummy", dumConn.TokenResponse.Token.ID))
+	dumpUsers(context)
+
+	dumpUserRecoveryTokens(context)
+	context.PurgeRecoveryTokens()
+	dumpUserRecoveryTokens(context)
+
+	dumpUserTokens(context)
+	context.PurgeConnectionTokens()
+	dumpUserTokens(context)
+
+	dumpUsers(context)
+	context.PurgeUsers()
+	dumpUsers(context)
+	dumpUserTokens(context)
 	//dumpAnotherTable(context)
 }
 
 func dumpAnotherTable(context *userbase.DbContext) {
+	fmt.Println("=========OTHERTABLE==============")
 	rows, err := context.Db.Query("select IdAnotherTable, Name from AnotherTable")
 	if err != nil {
 		log.Fatal(err)
@@ -63,8 +85,10 @@ func dumpAnotherTable(context *userbase.DbContext) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println("-----------------------------")
 }
 func dumpUserTokens(context *userbase.DbContext) {
+	fmt.Println("=========TOKENS==============")
 	rows, err := context.Db.Query("select IdUser, Token, Expiration from UserTokens")
 	if err != nil {
 		log.Fatal(err)
@@ -84,9 +108,34 @@ func dumpUserTokens(context *userbase.DbContext) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println("-----------------------------")
+}
+func dumpUserRecoveryTokens(context *userbase.DbContext) {
+	fmt.Println("=========RECOVERY==============")
+	rows, err := context.Db.Query("select IdUser, Token, Expiration from UserRecoveryTokens")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var id int
+		var token string
+		var expiration time.Time
+		err = rows.Scan(&id, &token, &expiration)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(id, token, expiration)
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("-----------------------------")
 }
 func dumpUsers(context *userbase.DbContext) {
-	rows, err := context.Db.Query("SELECT IdUser, Name, Password, RecoveryEmail, DisplayName, IdUserAccessTypeListFriends FROM Users JOIN UserAuthentications USING(IdUser) JOIN UserProfiles USING(IdUser) JOIN UserSettings USING(IdUser)")
+	fmt.Println("=========USERS==============")
+	rows, err := context.Db.Query("SELECT IdUser, Name, Active, Password, RecoveryEmail, DisplayName, IdUserAccessTypeListFriends FROM Users JOIN UserAuthentications USING(IdUser) JOIN UserProfiles USING(IdUser) JOIN UserSettings USING(IdUser)")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -94,20 +143,22 @@ func dumpUsers(context *userbase.DbContext) {
 	for rows.Next() {
 		var id int
 		var name string
+		var active bool
 		var password string
 		var email string
 		var display string
 		var idAccess int
-		err = rows.Scan(&id, &name, &password, &email, &display, &idAccess)
+		err = rows.Scan(&id, &name, &active, &password, &email, &display, &idAccess)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(id, name, password, email, display, idAccess)
+		fmt.Println(id, name, active, password, email, display, idAccess)
 	}
 	err = rows.Err()
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println("-----------------------------")
 }
 
 // InitDatabase inits the db
@@ -121,9 +172,36 @@ func InitDatabase(context *userbase.DbContext) {
 		Profile: userbase.ProfileInfo{
 			DisplayName: "ADMIN"}})
 
+	context.CreateUser(userbase.CreateUserRequest{
+		Username: "dummy",
+		Authentication: userbase.AuthenticationInfo{
+			Password: "abcd1234",
+			Email:    "dummy@ericmas001.com"},
+		Profile: userbase.ProfileInfo{
+			DisplayName: "UNUSED"}})
+
 	dumpUsers(context)
+	insertDummyToken(context)
+	insertDummyRecoveryToken(context)
+}
+
+func insertDummyToken(context *userbase.DbContext) {
 
 	stmt, err := context.Db.Prepare("insert INTO UserTokens (IdUser, Token, Expiration) VALUES (1, 'fe8e5991-58e1-48d8-ad6b-9e836d1695c8', ?)")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(time.Now().Add(time.Minute * time.Duration(-42)))
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func insertDummyRecoveryToken(context *userbase.DbContext) {
+
+	stmt, err := context.Db.Prepare("insert INTO UserRecoveryTokens (IdUser, Token, Expiration) VALUES (1, 'fe8e5991-58e1-48d8-ad6b-9e836d1695c8', ?)")
 	if err != nil {
 		log.Fatal(err)
 	}
