@@ -1,6 +1,9 @@
 package userbase
 
-import "database/sql"
+import (
+	"database/sql"
+	"fmt"
+)
 
 //IDFromUsername returns IdUser from a username
 func (context DbContext) IDFromUsername(username string) int64 {
@@ -46,4 +49,26 @@ func (context DbContext) UsernameExists(username string) bool {
 //EmailExists returns true if email exists
 func (context DbContext) EmailExists(email string) bool {
 	return context.IDFromEmail(email) != 0
+}
+
+//UserSummary returns summary of info on a user
+func (context DbContext) UserSummary(username string, token string) UserSummaryResponse {
+
+	connection := context.ValidateToken(username, token)
+	if !connection.TokenResponse.Success {
+		fmt.Println("invalid", username, token)
+		return invalidUserSummaryResponse()
+	}
+
+	stmt, err := context.Db.Prepare("SELECT DisplayName FROM UserProfiles WHERE IdUser = ?")
+	checkErr(err)
+	defer stmt.Close()
+
+	var displayName string
+	err = stmt.QueryRow(connection.IDUser).Scan(&displayName)
+	checkErr(err)
+
+	return UserSummaryResponse{
+		DisplayName:   displayName,
+		TokenResponse: connection.TokenResponse}
 }

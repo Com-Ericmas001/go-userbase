@@ -18,6 +18,12 @@ type ConnectUserResponse struct {
 	IDUser        int64
 }
 
+//UserSummaryResponse is a response
+type UserSummaryResponse struct {
+	TokenResponse TokenSuccessResponse
+	DisplayName   string
+}
+
 func invalidTokenSuccessResponse() TokenSuccessResponse {
 	return TokenSuccessResponse{
 		Success: false,
@@ -28,6 +34,11 @@ func invalidTokenSuccessResponse() TokenSuccessResponse {
 func invalidConnectUserResponse() ConnectUserResponse {
 	return ConnectUserResponse{
 		IDUser:        0,
+		TokenResponse: invalidTokenSuccessResponse()}
+}
+func invalidUserSummaryResponse() UserSummaryResponse {
+	return UserSummaryResponse{
+		DisplayName:   "",
 		TokenResponse: invalidTokenSuccessResponse()}
 }
 
@@ -50,4 +61,23 @@ func (context DbContext) newTokenSuccessResponse(id int64) ConnectUserResponse {
 		TokenResponse: TokenSuccessResponse{
 			Success: true,
 			Token:   token}}
+}
+
+func (context DbContext) newRecoveryTokenSuccessResponse(id int64) TokenSuccessResponse {
+
+	uuid, err := gorand.UUID()
+	checkErr(err)
+
+	token := Token{ID: uuid, ValidUntil: time.Now().Add(time.Hour * time.Duration(24))}
+
+	stmt, err := context.Db.Prepare("INSERT INTO UserRecoveryTokens(IdUser, Token, Expiration) VALUES(?, ?, ?)")
+	checkErr(err)
+	defer stmt.Close()
+
+	_, err = stmt.Exec(id, token.ID, token.ValidUntil)
+	checkErr(err)
+
+	return TokenSuccessResponse{
+		Success: true,
+		Token:   token}
 }

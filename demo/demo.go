@@ -5,64 +5,76 @@ import (
 	"fmt"
 	"go-userbase"
 	"log"
-	"os"
 	"time"
 )
+
+var myToken string
 
 func main() {
 	fmt.Println("Hello")
 
-	os.Remove("D:\\test.db")
+	//os.Remove("D:\\test.db")
 
 	context := userbase.Init("D:\\test.db", "DummyUserbaseSalt", CreateDatabase, InitDatabase)
 	defer context.Close()
-	fmt.Println("ericmas001:", context.IDFromUsername("ericmas001"), context.UsernameExists("ericmas001"))
-	fmt.Println("root:", context.IDFromUsername("root"), context.UsernameExists("root"))
-	fmt.Println("ericmas001@hotmail.com:", context.IDFromEmail("ericmas001@hotmail.com"), context.EmailExists("ericmas001@hotmail.com"))
-	fmt.Println("root@ericmas001.com:", context.IDFromEmail("root@ericmas001.com"), context.EmailExists("root@ericmas001.com"))
-	ok := context.ValidateCredentials("root", "abcd1234")
-	fmt.Println("Connect root ok:", ok)
-	fmt.Println("Connect root wrong:", context.ValidateCredentials("root", "abcd12345"))
+	// fmt.Println("ericmas001:", context.IDFromUsername("ericmas001"), context.UsernameExists("ericmas001"))
+	// fmt.Println("root:", context.IDFromUsername("root"), context.UsernameExists("root"))
+	// fmt.Println("ericmas001@hotmail.com:", context.IDFromEmail("ericmas001@hotmail.com"), context.EmailExists("ericmas001@hotmail.com"))
+	// fmt.Println("root@ericmas001.com:", context.IDFromEmail("root@ericmas001.com"), context.EmailExists("root@ericmas001.com"))
+	// ok := context.ValidateCredentials("root", "abcd1234")
+	// fmt.Println("Connect root ok:", ok)
+	// fmt.Println("Connect root wrong:", context.ValidateCredentials("root", "abcd12345"))
 
-	dumpUserTokens(context)
+	// dumpUserTokens(context)
 
-	fmt.Println("Validate root wrong:", context.ValidateToken("root", "fe8e5991-58e1-48d8-ad6b-9e836d1695c8"))
-	fmt.Println("Validate root ok:", context.ValidateToken("root", ok.TokenResponse.Token.ID))
+	// fmt.Println("Validate root wrong:", context.ValidateToken("root", "fe8e5991-58e1-48d8-ad6b-9e836d1695c8"))
+	// fmt.Println("Validate root ok:", context.ValidateToken("root", ok.TokenResponse.Token.ID))
 
-	dumpUserTokens(context)
+	// dumpUserTokens(context)
 
-	dumpUsers(context)
-	fmt.Println("ModifyCredentials:", context.ModifyCredentials(userbase.ModifyCredentialsRequest{Username: "root", Token: ok.TokenResponse.Token.ID, Authentication: userbase.AuthenticationInfo{Email: "user@ericmas001.com"}}))
-	fmt.Println("ModifyProfile:", context.ModifyProfile(userbase.ModifyProfileRequest{Username: "root", Token: ok.TokenResponse.Token.ID, Profile: userbase.ProfileInfo{DisplayName: "BOB"}}))
-	dumpUsers(context)
-	fmt.Println("ModifyCredentials:", context.ModifyCredentials(userbase.ModifyCredentialsRequest{Username: "root", Token: ok.TokenResponse.Token.ID, Authentication: userbase.AuthenticationInfo{Password: "qwerty12345"}}))
-	dumpUsers(context)
-	fmt.Println("ModifyCredentials:", context.ModifyCredentials(userbase.ModifyCredentialsRequest{Username: "root", Token: ok.TokenResponse.Token.ID, Authentication: userbase.AuthenticationInfo{Email: "root@ericmas001.com", Password: "abcd1234"}}))
-	fmt.Println("ModifyProfile:", context.ModifyProfile(userbase.ModifyProfileRequest{Username: "root", Token: ok.TokenResponse.Token.ID, Profile: userbase.ProfileInfo{DisplayName: "ADMIN"}}))
-	dumpUsers(context)
+	// dumpUsers(context)
+	// fmt.Println("ModifyCredentials:", context.ModifyCredentials(userbase.ModifyCredentialsRequest{Username: "root", Token: ok.TokenResponse.Token.ID, Authentication: userbase.AuthenticationInfo{Email: "user@ericmas001.com"}}))
+	// fmt.Println("ModifyProfile:", context.ModifyProfile(userbase.ModifyProfileRequest{Username: "root", Token: ok.TokenResponse.Token.ID, Profile: userbase.ProfileInfo{DisplayName: "BOB"}}))
+	// dumpUsers(context)
+	// fmt.Println("ModifyCredentials:", context.ModifyCredentials(userbase.ModifyCredentialsRequest{Username: "root", Token: ok.TokenResponse.Token.ID, Authentication: userbase.AuthenticationInfo{Password: "qwerty12345"}}))
+	// dumpUsers(context)
+	// fmt.Println("ModifyCredentials:", context.ModifyCredentials(userbase.ModifyCredentialsRequest{Username: "root", Token: ok.TokenResponse.Token.ID, Authentication: userbase.AuthenticationInfo{Email: "root@ericmas001.com", Password: "abcd1234"}}))
+	// fmt.Println("ModifyProfile:", context.ModifyProfile(userbase.ModifyProfileRequest{Username: "root", Token: ok.TokenResponse.Token.ID, Profile: userbase.ProfileInfo{DisplayName: "ADMIN"}}))
+	// dumpUsers(context)
 
-	fmt.Println("Connect root ok:", context.ValidateCredentials("root", "abcd1234"))
-	fmt.Println("Disconnect old root:", context.Disconnect("root", ok.TokenResponse.Token.ID))
-	dumpUserTokens(context)
+	// ok2 := context.ValidateCredentials("root", "abcd1234")
+	// fmt.Println("Connect root ok:", ok2)
+	// fmt.Println("Disconnect old root:", context.Disconnect("root", ok.TokenResponse.Token.ID))
+	// dumpUserTokens(context)
 
-	dumConn := context.ValidateCredentials("dummy", "abcd1234")
-	fmt.Println("Connect dummy:", dumConn)
-	fmt.Println("Deactivate dummy:", context.Deactivate("dummy", dumConn.TokenResponse.Token.ID))
-	dumpUsers(context)
+	// dumConn := context.ValidateCredentials("dummy", "abcd1234")
+	// fmt.Println("Connect dummy:", dumConn)
+	// fmt.Println("Deactivate dummy:", context.Deactivate("dummy", dumConn.TokenResponse.Token.ID))
+	// dumpUsers(context)
 
+	// dumpUserRecoveryTokens(context)
+	// context.PurgeRecoveryTokens()
+	// dumpUserRecoveryTokens(context)
+
+	// dumpUserTokens(context)
+	// context.PurgeConnectionTokens()
+	// dumpUserTokens(context)
+
+	// dumpUsers(context)
+	// context.PurgeUsers()
+	// dumpUsers(context)
+	// dumpUserTokens(context)
+
+	// fmt.Println("root summary:", context.UserSummary("root", ok2.TokenResponse.Token.ID))
+	fmt.Println("root send recovery token:", context.SendRecoveryToken("root", sendEmail))
+	fmt.Println("root updatePassword:", context.ResetPassword("root", myToken, "qwerty12345"))
 	dumpUserRecoveryTokens(context)
-	context.PurgeRecoveryTokens()
-	dumpUserRecoveryTokens(context)
-
-	dumpUserTokens(context)
-	context.PurgeConnectionTokens()
-	dumpUserTokens(context)
-
-	dumpUsers(context)
-	context.PurgeUsers()
-	dumpUsers(context)
-	dumpUserTokens(context)
 	//dumpAnotherTable(context)
+}
+
+func sendEmail(token userbase.Token, email string) {
+	fmt.Println(">> Sending recovery token", token.ID, "valid until", token.ValidUntil, "to", email, "!!!")
+	myToken = token.ID
 }
 
 func dumpAnotherTable(context *userbase.DbContext) {
