@@ -1,4 +1,4 @@
-package demo
+package main
 
 import (
 	"database/sql"
@@ -13,7 +13,6 @@ func main() {
 
 	context := userbase.Init("D:\\test.db", "DummyUserbaseSalt", CreateDatabase, InitDatabase)
 	defer context.Close()
-	dumpUsers(context)
 	fmt.Println("ericmas001:", context.IDFromUsername("ericmas001"), context.UsernameExists("ericmas001"))
 	fmt.Println("root:", context.IDFromUsername("root"), context.UsernameExists("root"))
 	fmt.Println("ericmas001@hotmail.com:", context.IDFromEmail("ericmas001@hotmail.com"), context.EmailExists("ericmas001@hotmail.com"))
@@ -28,7 +27,18 @@ func main() {
 	fmt.Println("Validate root ok:", context.ValidateToken("root", ok.TokenResponse.Token.ID))
 
 	dumpUserTokens(context)
+
 	dumpUsers(context)
+	fmt.Println("ModifyCredentials:", context.ModifyCredentials(userbase.ModifyCredentialsRequest{Username: "root", Token: ok.TokenResponse.Token.ID, Authentication: userbase.AuthenticationInfo{Email: "user@ericmas001.com"}}))
+	fmt.Println("ModifyProfile:", context.ModifyProfile(userbase.ModifyProfileRequest{Username: "root", Token: ok.TokenResponse.Token.ID, Profile: userbase.ProfileInfo{DisplayName: "BOB"}}))
+	dumpUsers(context)
+	fmt.Println("ModifyCredentials:", context.ModifyCredentials(userbase.ModifyCredentialsRequest{Username: "root", Token: ok.TokenResponse.Token.ID, Authentication: userbase.AuthenticationInfo{Password: "qwerty12345"}}))
+	dumpUsers(context)
+	fmt.Println("ModifyCredentials:", context.ModifyCredentials(userbase.ModifyCredentialsRequest{Username: "root", Token: ok.TokenResponse.Token.ID, Authentication: userbase.AuthenticationInfo{Email: "root@ericmas001.com", Password: "abcd1234"}}))
+	fmt.Println("ModifyProfile:", context.ModifyProfile(userbase.ModifyProfileRequest{Username: "root", Token: ok.TokenResponse.Token.ID, Profile: userbase.ProfileInfo{DisplayName: "ADMIN"}}))
+	dumpUsers(context)
+
+	fmt.Println("Connect root ok:", context.ValidateCredentials("root", "abcd1234"))
 	//dumpAnotherTable(context)
 }
 
@@ -108,6 +118,8 @@ func InitDatabase(context *userbase.DbContext) {
 			Email:    "root@ericmas001.com"},
 		Profile: userbase.ProfileInfo{
 			DisplayName: "ADMIN"}})
+
+	dumpUsers(context)
 
 	stmt, err := context.Db.Prepare("insert INTO UserTokens (IdUser, Token, Expiration) VALUES (1, 'fe8e5991-58e1-48d8-ad6b-9e836d1695c8', ?)")
 	if err != nil {
