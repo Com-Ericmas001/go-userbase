@@ -14,14 +14,16 @@ type TokenSuccessResponse struct {
 
 //ConnectUserResponse is a response
 type ConnectUserResponse struct {
-	TokenResponse TokenSuccessResponse
-	IDUser        int64
+	Success bool
+	Token   Token
+	IDUser  int64
 }
 
 //UserSummaryResponse is a response
 type UserSummaryResponse struct {
-	TokenResponse TokenSuccessResponse
-	DisplayName   string
+	Success     bool
+	Token       Token
+	DisplayName string
 }
 
 func invalidTokenSuccessResponse() TokenSuccessResponse {
@@ -33,13 +35,19 @@ func invalidTokenSuccessResponse() TokenSuccessResponse {
 }
 func invalidConnectUserResponse() ConnectUserResponse {
 	return ConnectUserResponse{
-		IDUser:        0,
-		TokenResponse: invalidTokenSuccessResponse()}
+		IDUser:  0,
+		Success: false,
+		Token: Token{
+			ID:         "",
+			ValidUntil: time.Now()}}
 }
 func invalidUserSummaryResponse() UserSummaryResponse {
 	return UserSummaryResponse{
-		DisplayName:   "",
-		TokenResponse: invalidTokenSuccessResponse()}
+		DisplayName: "",
+		Success:     false,
+		Token: Token{
+			ID:         "",
+			ValidUntil: time.Now()}}
 }
 
 func (context DbContext) newTokenSuccessResponse(id int64) ConnectUserResponse {
@@ -57,10 +65,9 @@ func (context DbContext) newTokenSuccessResponse(id int64) ConnectUserResponse {
 	checkErr(err)
 
 	return ConnectUserResponse{
-		IDUser: id,
-		TokenResponse: TokenSuccessResponse{
-			Success: true,
-			Token:   token}}
+		IDUser:  id,
+		Success: true,
+		Token:   token}
 }
 
 func (context DbContext) newRecoveryTokenSuccessResponse(id int64) TokenSuccessResponse {

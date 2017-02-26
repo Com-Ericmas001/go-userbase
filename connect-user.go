@@ -64,12 +64,11 @@ func (context DbContext) ValidateToken(username string, token string) ConnectUse
 	_, err = stmt2.Exec(newExpiration, id, token)
 
 	return ConnectUserResponse{
-		IDUser: id,
-		TokenResponse: TokenSuccessResponse{
-			Success: true,
-			Token: Token{
-				ID:         token,
-				ValidUntil: newExpiration}}}
+		IDUser:  id,
+		Success: true,
+		Token: Token{
+			ID:         token,
+			ValidUntil: newExpiration}}
 }
 
 //Disconnect a user

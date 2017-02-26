@@ -15,6 +15,6 @@ type ProfileInfo struct {
 
 //Token is a model
 type Token struct {
-	ID         string
+	ID         string `json:"Id"`
 	ValidUntil time.Time
 }

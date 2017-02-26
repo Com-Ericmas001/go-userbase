@@ -13,7 +13,7 @@ var myToken string
 func main() {
 	fmt.Println("Hello")
 
-	//os.Remove("D:\\test.db")
+	// os.Remove("D:\\test.db")
 
 	context := userbase.Init("D:\\test.db", "DummyUserbaseSalt", CreateDatabase, InitDatabase)
 	defer context.Close()
@@ -28,28 +28,28 @@ func main() {
 	// dumpUserTokens(context)
 
 	// fmt.Println("Validate root wrong:", context.ValidateToken("root", "fe8e5991-58e1-48d8-ad6b-9e836d1695c8"))
-	// fmt.Println("Validate root ok:", context.ValidateToken("root", ok.TokenResponse.Token.ID))
+	// fmt.Println("Validate root ok:", context.ValidateToken("root", ok.Token.ID))
 
 	// dumpUserTokens(context)
 
 	// dumpUsers(context)
-	// fmt.Println("ModifyCredentials:", context.ModifyCredentials(userbase.ModifyCredentialsRequest{Username: "root", Token: ok.TokenResponse.Token.ID, Authentication: userbase.AuthenticationInfo{Email: "user@ericmas001.com"}}))
-	// fmt.Println("ModifyProfile:", context.ModifyProfile(userbase.ModifyProfileRequest{Username: "root", Token: ok.TokenResponse.Token.ID, Profile: userbase.ProfileInfo{DisplayName: "BOB"}}))
+	// fmt.Println("ModifyCredentials:", context.ModifyCredentials(userbase.ModifyCredentialsRequest{Username: "root", Token: ok.Token.ID, Authentication: userbase.AuthenticationInfo{Email: "user@ericmas001.com"}}))
+	// fmt.Println("ModifyProfile:", context.ModifyProfile(userbase.ModifyProfileRequest{Username: "root", Token: ok.Token.ID, Profile: userbase.ProfileInfo{DisplayName: "BOB"}}))
 	// dumpUsers(context)
-	// fmt.Println("ModifyCredentials:", context.ModifyCredentials(userbase.ModifyCredentialsRequest{Username: "root", Token: ok.TokenResponse.Token.ID, Authentication: userbase.AuthenticationInfo{Password: "qwerty12345"}}))
+	// fmt.Println("ModifyCredentials:", context.ModifyCredentials(userbase.ModifyCredentialsRequest{Username: "root", Token: ok.Token.ID, Authentication: userbase.AuthenticationInfo{Password: "qwerty12345"}}))
 	// dumpUsers(context)
-	// fmt.Println("ModifyCredentials:", context.ModifyCredentials(userbase.ModifyCredentialsRequest{Username: "root", Token: ok.TokenResponse.Token.ID, Authentication: userbase.AuthenticationInfo{Email: "root@ericmas001.com", Password: "abcd1234"}}))
-	// fmt.Println("ModifyProfile:", context.ModifyProfile(userbase.ModifyProfileRequest{Username: "root", Token: ok.TokenResponse.Token.ID, Profile: userbase.ProfileInfo{DisplayName: "ADMIN"}}))
+	// fmt.Println("ModifyCredentials:", context.ModifyCredentials(userbase.ModifyCredentialsRequest{Username: "root", Token: ok.Token.ID, Authentication: userbase.AuthenticationInfo{Email: "root@ericmas001.com", Password: "abcd1234"}}))
+	// fmt.Println("ModifyProfile:", context.ModifyProfile(userbase.ModifyProfileRequest{Username: "root", Token: ok.Token.ID, Profile: userbase.ProfileInfo{DisplayName: "ADMIN"}}))
 	// dumpUsers(context)
 
 	// ok2 := context.ValidateCredentials("root", "abcd1234")
 	// fmt.Println("Connect root ok:", ok2)
-	// fmt.Println("Disconnect old root:", context.Disconnect("root", ok.TokenResponse.Token.ID))
+	// fmt.Println("Disconnect old root:", context.Disconnect("root", ok.Token.ID))
 	// dumpUserTokens(context)
 
 	// dumConn := context.ValidateCredentials("dummy", "abcd1234")
 	// fmt.Println("Connect dummy:", dumConn)
-	// fmt.Println("Deactivate dummy:", context.Deactivate("dummy", dumConn.TokenResponse.Token.ID))
+	// fmt.Println("Deactivate dummy:", context.Deactivate("dummy", dumConn.Token.ID))
 	// dumpUsers(context)
 
 	// dumpUserRecoveryTokens(context)
@@ -65,7 +65,7 @@ func main() {
 	// dumpUsers(context)
 	// dumpUserTokens(context)
 
-	// fmt.Println("root summary:", context.UserSummary("root", ok2.TokenResponse.Token.ID))
+	// fmt.Println("root summary:", context.UserSummary("root", ok2.Token.ID))
 	fmt.Println("root send recovery token:", context.SendRecoveryToken("root", sendEmail))
 	fmt.Println("root updatePassword:", context.ResetPassword("root", myToken, "qwerty12345"))
 	dumpUserRecoveryTokens(context)

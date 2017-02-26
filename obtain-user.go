@@ -55,7 +55,7 @@ func (context DbContext) EmailExists(email string) bool {
 func (context DbContext) UserSummary(username string, token string) UserSummaryResponse {
 
 	connection := context.ValidateToken(username, token)
-	if !connection.TokenResponse.Success {
+	if !connection.Success {
 		fmt.Println("invalid", username, token)
 		return invalidUserSummaryResponse()
 	}
@@ -69,6 +69,7 @@ func (context DbContext) UserSummary(username string, token string) UserSummaryR
 	checkErr(err)
 
 	return UserSummaryResponse{
-		DisplayName:   displayName,
-		TokenResponse: connection.TokenResponse}
+		DisplayName: displayName,
+		Success:     connection.Success,
+		Token:       connection.Token}
 }

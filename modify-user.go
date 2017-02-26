@@ -6,7 +6,7 @@ import "golang.org/x/crypto/bcrypt"
 func (context DbContext) ModifyProfile(request ModifyProfileRequest) TokenSuccessResponse {
 
 	connection := context.ValidateToken(request.Username, request.Token)
-	if !connection.TokenResponse.Success {
+	if !connection.Success {
 		return invalidTokenSuccessResponse()
 	}
 
@@ -23,14 +23,14 @@ func (context DbContext) ModifyProfile(request ModifyProfileRequest) TokenSucces
 		checkErr(err)
 	}
 
-	return connection.TokenResponse
+	return TokenSuccessResponse{Success: connection.Success, Token: connection.Token}
 }
 
 //ModifyCredentials modifies credentials
 func (context DbContext) ModifyCredentials(request ModifyCredentialsRequest) TokenSuccessResponse {
 
 	connection := context.ValidateToken(request.Username, request.Token)
-	if !connection.TokenResponse.Success {
+	if !connection.Success {
 		return invalidTokenSuccessResponse()
 	}
 
@@ -64,14 +64,14 @@ func (context DbContext) ModifyCredentials(request ModifyCredentialsRequest) Tok
 		checkErr(err)
 	}
 
-	return connection.TokenResponse
+	return TokenSuccessResponse{Success: connection.Success, Token: connection.Token}
 }
 
 //Deactivate deactivates the user
 func (context DbContext) Deactivate(username string, token string) bool {
 
 	connection := context.ValidateToken(username, token)
-	if !connection.TokenResponse.Success {
+	if !connection.Success {
 		return false
 	}
 
