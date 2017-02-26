@@ -21,8 +21,8 @@ func main() {
 	// fmt.Println("root:", context.IDFromUsername("root"), context.UsernameExists("root"))
 	// fmt.Println("ericmas001@hotmail.com:", context.IDFromEmail("ericmas001@hotmail.com"), context.EmailExists("ericmas001@hotmail.com"))
 	// fmt.Println("root@ericmas001.com:", context.IDFromEmail("root@ericmas001.com"), context.EmailExists("root@ericmas001.com"))
-	// ok := context.ValidateCredentials("root", "abcd1234")
-	// fmt.Println("Connect root ok:", ok)
+	ok := context.ValidateCredentials("root", "abcd1234")
+	fmt.Println("Connect root ok:", ok)
 	// fmt.Println("Connect root wrong:", context.ValidateCredentials("root", "abcd12345"))
 
 	// dumpUserTokens(context)
@@ -44,7 +44,8 @@ func main() {
 
 	// ok2 := context.ValidateCredentials("root", "abcd1234")
 	// fmt.Println("Connect root ok:", ok2)
-	// fmt.Println("Disconnect old root:", context.Disconnect("root", ok.Token.ID))
+	fmt.Println("Disconnect old root:", context.Disconnect("root", ok.Token.ID))
+	fmt.Println("Disconnect old root:", context.Disconnect("root", ok.Token.ID))
 	// dumpUserTokens(context)
 
 	// dumConn := context.ValidateCredentials("dummy", "abcd1234")
@@ -66,9 +67,9 @@ func main() {
 	// dumpUserTokens(context)
 
 	// fmt.Println("root summary:", context.UserSummary("root", ok2.Token.ID))
-	fmt.Println("root send recovery token:", context.SendRecoveryToken("root", sendEmail))
-	fmt.Println("root updatePassword:", context.ResetPassword("root", myToken, "qwerty12345"))
-	dumpUserRecoveryTokens(context)
+	// fmt.Println("root send recovery token:", context.SendRecoveryToken("root", sendEmail))
+	// fmt.Println("root updatePassword:", context.ResetPassword("root", myToken, "qwerty12345"))
+	// dumpUserRecoveryTokens(context)
 	//dumpAnotherTable(context)
 }
 

@@ -74,8 +74,8 @@ func (context DbContext) ValidateToken(username string, token string) ConnectUse
 //Disconnect a user
 func (context DbContext) Disconnect(username string, token string) bool {
 
-	id := context.IDFromUsername(username)
-	if id == 0 {
+	connection := context.ValidateToken(username, token)
+	if !connection.Success {
 		return false
 	}
 
@@ -85,7 +85,7 @@ func (context DbContext) Disconnect(username string, token string) bool {
 	checkErr(err)
 	defer stmt2.Close()
 
-	_, err = stmt2.Exec(newExpiration, id, token)
+	_, err = stmt2.Exec(newExpiration, connection.IDUser, token)
 
 	return true
 }
