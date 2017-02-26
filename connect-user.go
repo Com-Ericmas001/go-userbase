@@ -71,3 +71,22 @@ func (context DbContext) ValidateToken(username string, token string) ConnectUse
 				ID:         token,
 				ValidUntil: newExpiration}}}
 }
+
+//Disconnect a user
+func (context DbContext) Disconnect(username string, token string) bool {
+
+	id := context.IDFromUsername(username)
+	if id == 0 {
+		return false
+	}
+
+	newExpiration := time.Now()
+
+	stmt2, err := context.Db.Prepare("UPDATE UserTokens SET Expiration = ? WHERE IdUser = ? AND Token = ?")
+	checkErr(err)
+	defer stmt2.Close()
+
+	_, err = stmt2.Exec(newExpiration, id, token)
+
+	return true
+}

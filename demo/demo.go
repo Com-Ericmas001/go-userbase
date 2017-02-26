@@ -39,6 +39,8 @@ func main() {
 	dumpUsers(context)
 
 	fmt.Println("Connect root ok:", context.ValidateCredentials("root", "abcd1234"))
+	fmt.Println("Disconnect old root:", context.Disconnect("root", ok.TokenResponse.Token.ID))
+	dumpUserTokens(context)
 	//dumpAnotherTable(context)
 }
 
