@@ -8,7 +8,7 @@ import (
 )
 
 //FnSendEmail is a function used to send e-mail
-type FnSendEmail func(Token, string)
+type FnSendEmail func(Token, string, string)
 
 //SendRecoveryToken sends a recoveryToken
 func (context *DbContext) SendRecoveryToken(username string, fnSendEmail FnSendEmail) bool {
@@ -27,7 +27,7 @@ func (context *DbContext) SendRecoveryToken(username string, fnSendEmail FnSendE
 	checkErr(err)
 
 	token := context.newRecoveryTokenSuccessResponse(id)
-	fnSendEmail(token.Token, email)
+	fnSendEmail(token.Token, username, email)
 
 	return true
 }

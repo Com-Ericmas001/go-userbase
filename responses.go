@@ -1,6 +1,7 @@
 package userbase
 
 import (
+	"strings"
 	"time"
 
 	"github.com/leonelquinteros/gorand"
@@ -75,7 +76,7 @@ func (context DbContext) newRecoveryTokenSuccessResponse(id int64) TokenSuccessR
 	uuid, err := gorand.UUID()
 	checkErr(err)
 
-	token := Token{ID: uuid, ValidUntil: time.Now().Add(time.Hour * time.Duration(24))}
+	token := Token{ID: strings.ToUpper(uuid[:8]), ValidUntil: time.Now().Add(time.Hour * time.Duration(24))}
 
 	stmt, err := context.Db.Prepare("INSERT INTO UserRecoveryTokens(IdUser, Token, Expiration) VALUES(?, ?, ?)")
 	checkErr(err)
